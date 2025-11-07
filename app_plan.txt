@@ -1,0 +1,121 @@
+APP DEVELOPMENT PLAN FOR THE AGENT
+
+Goal:
+Develop a small web app using HTML, embedded JavaScript, and CSS, with Supabase (via CDN) as the backend.
+The app tracks when Ajda felt sick, shows her sickness status and a simple calendar visualization.
+
+---
+
+1. PROJECT STRUCTURE
+
+Create the following files:
+- index.html — main page with calendar and sickness status
+- add.html — page (or modal) for adding new sickness entries
+- app.js — handles Supabase operations and UI logic
+- styles.css — defines the appearance and layout
+
+All JavaScript and CSS should be embedded or referenced in these files.
+
+---
+
+2. DATABASE DESIGN
+
+Single table named sickness in Supabase.
+
+Fields:
+- id (unique identifier)
+- date (the day Ajda felt sick)
+- sick (boolean: true if Ajda felt sick on that date)
+- sickness_type (text: e.g., “stomach ache”, “head hurts”, etc.)
+- notes (optional text)
+- created_at (timestamp)
+
+Each entry represents one day. Only one entry per date is allowed (enforce via constraint or logic).
+
+---
+
+3. SUPABASE SETUP
+
+- Use Supabase client imported via CDN.
+- Store Supabase project URL and anon key directly in the HTML.
+- No authentication or login is required.
+- Database rules should allow public read and insert operations for this table.
+
+---
+
+4. CORE FUNCTIONALITY
+
+The app must:
+1. Fetch all sickness entries from Supabase.
+2. Display them on a simple monthly calendar.
+   - Sick days should be visually highlighted.
+   - Hovering or clicking a sick day shows sickness type and notes.
+3. Show a label indicating Ajda’s current status:
+   - If there’s an entry for today where sick = true → “Ajda is sick today.”
+   - Otherwise → “X days since last sick” (based on the most recent sick date).
+4. Allow adding or updating entries through a simple form page (or modal).
+   - Inputs: date, sickness status (checkbox), sickness type (dropdown), optional notes.
+   - On submit, insert or update the corresponding row in Supabase.
+
+---
+
+5. CALENDAR DESIGN
+
+- Simple grid layout for the current month (7 columns × up to 6 rows).
+- Each cell represents a day.
+- Sick days are highlighted using a distinct color or style.
+- The current day should be clearly marked.
+- Calendar should fit mobile screens and remain readable.
+
+---
+
+6. PAGE BEHAVIOR AND FLOW
+
+- When the main page loads:
+  1. Fetch all entries from Supabase.
+  2. Determine if Ajda is sick today.
+  3. Calculate how many days since the last sickness.
+  4. Update the label text accordingly.
+  5. Render the calendar with sick days marked.
+- When a new entry is added:
+  1. Submit it to Supabase.
+  2. Refresh the data and re-render the calendar and label.
+
+---
+
+7. VISUAL STYLE
+
+- Minimalistic, friendly, and mobile-responsive.
+- Large central label for sickness status.
+- Calendar centered below the label.
+- Soft colors, rounded corners, clear contrasts.
+- Use CSS for hover effects and tooltips.
+
+---
+
+8. DATA HANDLING RULES
+
+- Only one entry per date (if user re-enters the same date, replace the old one).
+- Today’s sickness status is determined solely by an entry for today where sick = true.
+- “Days since last sick” is calculated using the latest previous sick entry.
+- Local timezone should be used for date calculations.
+- Data must be fetched and rendered dynamically each time the page loads or data changes.
+
+---
+
+9. SECURITY CONSIDERATIONS
+
+- It’s acceptable to keep Supabase anon key in the HTML (per project requirements).
+- Ensure Supabase table policies permit only the needed operations (read and insert).
+- No user authentication or role logic is required.
+
+---
+
+10. TESTING AND VERIFICATION
+
+Before completion:
+- Verify fetching and rendering works correctly.
+- Confirm calendar highlights correct sick days.
+- Test label updates when adding or removing today’s entry.
+- Test the app across different months and mobile viewports.
+- Ensure form submissions correctly update the database.

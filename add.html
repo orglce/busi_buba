@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add/Update Sickness Entry</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Add or Update Sickness Entry</h1>
+    <form id="sickness-form">
+      <label>Date: <input type="date" name="date" id="date-input" required></label><br>
+      <label>Type:
+        <select name="sickness_type" required>
+          <option value="">Select type</option>
+          <option value="stomach ache">Stomach ache</option>
+          <option value="head hurts">Head hurts</option>
+          <option value="cold">Cold</option>
+          <option value="other">Other</option>
+        </select>
+      </label><br>
+      <label>Notes: <textarea name="notes"></textarea></label><br>
+      <button type="submit">Save Entry</button>
+    </form>
+    <button id="back-btn" onclick="window.location.href='index.html'">Back to Calendar</button>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    // Set max date to today
+    const dateInput = document.getElementById('date-input');
+    const todayStr = new Date().toISOString().slice(0,10);
+    dateInput.max = todayStr;
+    if (!dateInput.value) dateInput.value = todayStr;
+  </script>
+</body>
+</html>
