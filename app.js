@@ -62,18 +62,18 @@ function renderStatus(entries) {
   const sickToday = entries.filter(e => e.date === today && e.sick);
   const label = document.getElementById('status-label');
   if (sickToday.length > 0) {
-    label.textContent = 'Ajda is sick today.';
+    label.textContent = 'Ajda je danes bolna.';
   } else {
-    // Find most recent sick day before today
+    // Najdi zadnji dan bolezni pred danes
     const sickDays = entries.filter(e => e.sick && e.date < today);
     if (sickDays.length === 0) {
-      label.textContent = 'Ajda has never been sick.';
+      label.textContent = 'Ajda še nikoli ni bila bolna.';
     } else {
       const lastSick = sickDays[sickDays.length - 1];
       const lastDate = new Date(lastSick.date);
       const now = new Date(today);
       const diff = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
-      label.textContent = `${diff} days since last sick.`;
+      label.textContent = `${diff} dni od zadnje bolezni.`;
     }
   }
 }
@@ -103,7 +103,7 @@ function renderCalendar(entries) {
   });
 
   // Render weekday headers
-  const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const weekdays = ['Ned','Pon','Tor','Sre','Čet','Pet','Sob'];
   weekdays.forEach(day => {
     const th = document.createElement('div');
     th.textContent = day;
@@ -128,18 +128,18 @@ function renderCalendar(entries) {
     cell.className = 'calendar-day';
     cell.textContent = day;
     if (dateStr === today) cell.classList.add('today');
+    let tooltip = null;
     if (sickCount > 0) {
       cell.classList.add('sick');
       cell.style.background = `rgb(255,${180-Math.min(sickCount*40,150)},${180-Math.min(sickCount*40,150)})`;
-      // Tooltip for all sicknesses
-      const tooltip = document.createElement('div');
+      tooltip = document.createElement('div');
       tooltip.className = 'tooltip';
-      tooltip.tabIndex = 0; // Make tooltip focusable
+      tooltip.tabIndex = 0;
       entriesForDay.forEach(e => {
         const entryDiv = document.createElement('div');
         entryDiv.innerHTML = `<strong>${e.sickness_type}</strong><br>${e.notes ? e.notes : ''}`;
         const editBtn = document.createElement('button');
-        editBtn.textContent = 'Edit';
+        editBtn.textContent = 'Uredi';
         editBtn.style.fontSize = '0.8em';
         editBtn.onclick = function(ev) {
           ev.stopPropagation();
@@ -147,14 +147,13 @@ function renderCalendar(entries) {
         };
         entryDiv.appendChild(editBtn);
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Delete';
+        deleteBtn.textContent = 'Izbriši';
         deleteBtn.style.fontSize = '0.8em';
         deleteBtn.style.marginLeft = '0.5em';
         deleteBtn.onclick = async function(ev) {
           ev.stopPropagation();
-          if (confirm('Delete this sickness entry?')) {
+          if (confirm('Izbrišem ta vnos bolezni?')) {
             await deleteEntry(e.id);
-            // Refresh calendar after deletion
             fetchEntries().then(entries => {
               renderStatus(entries);
               renderCalendar(entries);
@@ -168,23 +167,25 @@ function renderCalendar(entries) {
       // Remove last <hr>
       if (tooltip.lastChild) tooltip.removeChild(tooltip.lastChild);
       cell.appendChild(tooltip);
-      // Show tooltip on click/tap
-      cell.onclick = (ev) => {
-        ev.stopPropagation();
-        tooltip.style.display = 'block';
-        tooltip.focus();
-      };
-      // Hide tooltip when clicking outside or losing focus
-      tooltip.onblur = () => { tooltip.style.display = 'none'; };
       // Prevent tooltip from hiding when clicking inside
       tooltip.onclick = (ev) => { ev.stopPropagation(); };
-      // For mobile: hide tooltip on touch outside
+      // Hide tooltip when clicking outside
       document.addEventListener('click', function hideTooltip(e) {
         if (!cell.contains(e.target) && !tooltip.contains(e.target)) {
           tooltip.style.display = 'none';
         }
-      }, { capture: true });
+      }, { capture: true, once: true });
     }
+    cell.onclick = (ev) => {
+      ev.stopPropagation();
+      if (sickCount > 0 && tooltip) {
+        document.querySelectorAll('.tooltip').forEach(t => { t.style.display = 'none'; });
+        tooltip.style.display = 'block';
+        tooltip.focus();
+      } else {
+        window.location.href = `add.html?date=${dateStr}`;
+      }
+    };
     calendarEl.appendChild(cell);
   }
 }
@@ -212,7 +213,6 @@ if (form) {
     supabase.from('sickness').select('*').eq('id', editId).single().then(({data}) => {
       if (data) {
         form.elements['date'].value = data.date;
-        form.elements['sick'].checked = !!data.sick;
         form.elements['sickness_type'].value = data.sickness_type;
         form.elements['notes'].value = data.notes || '';
       }
@@ -225,7 +225,7 @@ if (form) {
     if (!date) date = getToday();
     const entry = {
       date: date,
-      sick: fd.get('sick') ? true : false,
+      sick: true, // Always set sick to true for every entry
       sickness_type: fd.get('sickness_type'),
       notes: fd.get('notes'),
       created_at: new Date().toISOString()

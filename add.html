@@ -1,38 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add/Update Sickness Entry</title>
+  <title>Dodaj/uredi vnos bolezni</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
 </head>
 <body>
   <main>
-    <h1>Add or Update Sickness Entry</h1>
+    <h1>Dodaj ali uredi vnos bolezni</h1>
     <form id="sickness-form">
-      <label>Date: <input type="date" name="date" id="date-input" required></label><br>
-      <label>Type:
+      <div id="date-display"></div>
+      <input type="hidden" name="date" id="date-input">
+      <label>Vrsta:
         <select name="sickness_type" required>
-          <option value="">Select type</option>
-          <option value="stomach ache">Stomach ache</option>
-          <option value="head hurts">Head hurts</option>
-          <option value="cold">Cold</option>
-          <option value="other">Other</option>
+          <option value="">Izberi vrsto</option>
+          <option value="bolečine v trebuhu">Bolečine v trebuhu</option>
+          <option value="glavobol">Glavobol</option>
+          <option value="prehlad">Prehlad</option>
+          <option value="drugo">Drugo</option>
         </select>
       </label><br>
-      <label>Notes: <textarea name="notes"></textarea></label><br>
-      <button type="submit">Save Entry</button>
+      <label>Opombe: <textarea name="notes"></textarea></label><br>
+      <button type="submit">Shrani vnos</button>
     </form>
-    <button id="back-btn" onclick="window.location.href='index.html'">Back to Calendar</button>
+    <button id="back-btn" onclick="window.location.href='index.html'">Nazaj na koledar</button>
   </main>
   <script src="app.js"></script>
   <script>
-    // Set max date to today
-    const dateInput = document.getElementById('date-input');
-    const todayStr = new Date().toISOString().slice(0,10);
-    dateInput.max = todayStr;
-    if (!dateInput.value) dateInput.value = todayStr;
+const urlParams = new URLSearchParams(window.location.search);
+const dateParam = urlParams.get('date');
+const editId = urlParams.get('id');
+const dateInput = document.getElementById('date-input');
+const dateDisplay = document.getElementById('date-display');
+if (!editId && dateParam) {
+  dateInput.value = dateParam;
+  dateDisplay.textContent = `Izbran datum: ${dateParam}`;
+}
   </script>
 </body>
 </html>

@@ -82,6 +82,24 @@ h1 {
 #add-entry-btn:hover, button[type="submit"]:hover {
   background: #176d6e;
 }
+#back-btn {
+  display: block;
+  width: 100%;
+  margin: 1rem 0 0 0;
+  padding: 0.7em;
+  font-size: 1rem;
+  background: linear-gradient(90deg, #2a7a7b 60%, #4fc3c4 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: background 0.2s;
+}
+#back-btn:hover {
+  background: linear-gradient(90deg, #176d6e 60%, #2a7a7b 100%);
+}
 form label {
   display: block;
   margin: 0.7em 0 0.2em 0;
