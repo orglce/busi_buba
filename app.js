@@ -62,7 +62,8 @@ function renderStatus(entries) {
   const sickToday = entries.filter(e => e.date === today && e.sick);
   const label = document.getElementById('status-label');
   if (sickToday.length > 0) {
-    label.textContent = 'Ajda je danes bolna.';
+    const types = sickToday.map(e => e.sickness_type).join(', ');
+    label.textContent = `Ajdo danes neki buba. Ima: ${types}`;
   } else {
     // Najdi zadnji dan bolezni pred danes
     const sickDays = entries.filter(e => e.sick && e.date < today);
@@ -102,19 +103,23 @@ function renderCalendar(entries) {
     entryMap[e.date].push(e);
   });
 
-  // Render weekday headers
-  const weekdays = ['Ned','Pon','Tor','Sre','Čet','Pet','Sob'];
+  // Render weekday headers (start with Monday)
+  const weekdays = ['Pon','Tor','Sre','Čet','Pet','Sob','Ned'];
   weekdays.forEach(day => {
     const th = document.createElement('div');
     th.textContent = day;
     th.style.fontWeight = 'bold';
     th.style.background = '#e0e0e0';
     th.style.borderRadius = '8px';
+    th.style.margin = '0 2px 6px 2px';
+    th.style.padding = '4px 0';
     calendarEl.appendChild(th);
   });
 
-  // Fill empty cells before first day
-  for (let i = 0; i < startWeekday; i++) {
+  // Calculate offset for Monday as first day
+  let offset = firstDay.getDay() - 1;
+  if (offset < 0) offset = 6;
+  for (let i = 0; i < offset; i++) {
     const empty = document.createElement('div');
     calendarEl.appendChild(empty);
   }
@@ -166,6 +171,16 @@ function renderCalendar(entries) {
       });
       // Remove last <hr>
       if (tooltip.lastChild) tooltip.removeChild(tooltip.lastChild);
+      // Add button to add another sickness for this day
+      const addBtn = document.createElement('button');
+      addBtn.textContent = 'Dodaj bolezen';
+      addBtn.style.display = 'block';
+      addBtn.style.margin = '0.5em auto';
+      addBtn.onclick = function(ev) {
+        ev.stopPropagation();
+        window.location.href = `add.html?date=${dateStr}`;
+      };
+      tooltip.appendChild(addBtn);
       cell.appendChild(tooltip);
       // Prevent tooltip from hiding when clicking inside
       tooltip.onclick = (ev) => { ev.stopPropagation(); };
@@ -178,10 +193,20 @@ function renderCalendar(entries) {
     }
     cell.onclick = (ev) => {
       ev.stopPropagation();
+      document.querySelectorAll('.tooltip').forEach(t => { t.style.display = 'none'; });
       if (sickCount > 0 && tooltip) {
-        document.querySelectorAll('.tooltip').forEach(t => { t.style.display = 'none'; });
         tooltip.style.display = 'block';
         tooltip.focus();
+        // Add a one-time event listener to close tooltip when clicking outside
+        setTimeout(() => {
+          function outsideClick(e) {
+            if (!cell.contains(e.target) && !tooltip.contains(e.target)) {
+              tooltip.style.display = 'none';
+              document.removeEventListener('click', outsideClick, true);
+            }
+          }
+          document.addEventListener('click', outsideClick, true);
+        }, 0);
       } else {
         window.location.href = `add.html?date=${dateStr}`;
       }
