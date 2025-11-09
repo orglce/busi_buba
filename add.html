@@ -13,14 +13,8 @@
     <form id="sickness-form">
       <div id="date-display"></div>
       <input type="hidden" name="date" id="date-input">
-      <label>Vrsta:
-        <select name="sickness_type" required>
-          <option value="">Izberi vrsto</option>
-          <option value="bolečine v trebuhu">Buši buba</option>
-          <option value="glavobol">Glava buba</option>
-          <option value="prehlad">Slabo ji je</option>
-          <option value="drugo">Drugo</option>
-        </select>
+      <label>Kaj Ajdo buba?
+        <input type="text" name="sickness_type" required placeholder="">
       </label><br>
       <label>Opombe: <textarea name="notes"></textarea></label><br>
       <button type="submit">Shrani vnos</button>
