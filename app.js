@@ -63,9 +63,11 @@ function renderStatus(entries) {
   const label = document.getElementById('status-label');
   if (sickToday.length > 0) {
     const types = sickToday.map(e => e.sickness_type).join(', ');
-    label.textContent = `Ajdo danes neki buba. Ima: ${types}`;
+    label.style.color = '#ff0000';
+    label.textContent = `Ajdo dans neki buba. Ima: ${types}`;
   } else {
     // Najdi zadnji dan bolezni pred danes
+    label.style.color = '#008000';
     const sickDays = entries.filter(e => e.sick && e.date < today);
     if (sickDays.length === 0) {
       label.textContent = 'Ajda še nikoli ni bila bolna.';
@@ -74,7 +76,15 @@ function renderStatus(entries) {
       const lastDate = new Date(lastSick.date);
       const now = new Date(today);
       const diff = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
-      label.textContent = `${diff} dni od zadnje bolezni.`;
+      dayLabel = "";
+      switch (diff) {
+        case 1: dayLabel = "dan"; break;
+        case 2: dayLabel = "dneva"; break;
+        case 3: dayLabel = "dnevi"; break;
+        case 4: dayLabel = "dnevi"; break;
+        default: dayLabel = "dni";
+      }
+      label.textContent = `${diff} ${dayLabel} od kar je Ajdo kej bubalo.`;
     }
   }
 }
